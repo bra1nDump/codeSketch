@@ -86,6 +86,265 @@
 /************************************************************************/
 /******/ ({
 
+/***/ "./node_modules/@codemirror/next/commands/dist/index.es.js":
+/*!*****************************************************************!*\
+  !*** ./node_modules/@codemirror/next/commands/dist/index.es.js ***!
+  \*****************************************************************/
+/*! exports provided: baseKeymap, deleteCharBackward, deleteCharForward, extendCharLeft, extendCharRight, extendLineDown, extendLineEnd, extendLineStart, extendLineUp, extendWordLeft, extendWordRight, indentSelection, insertNewlineAndIndent, macBaseKeymap, moveCharLeft, moveCharRight, moveLineDown, moveLineEnd, moveLineStart, moveLineUp, moveWordLeft, moveWordRight, pcBaseKeymap, selectAll, selectDocEnd, selectDocStart */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "baseKeymap", function() { return baseKeymap; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "deleteCharBackward", function() { return deleteCharBackward; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "deleteCharForward", function() { return deleteCharForward; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "extendCharLeft", function() { return extendCharLeft; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "extendCharRight", function() { return extendCharRight; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "extendLineDown", function() { return extendLineDown; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "extendLineEnd", function() { return extendLineEnd; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "extendLineStart", function() { return extendLineStart; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "extendLineUp", function() { return extendLineUp; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "extendWordLeft", function() { return extendWordLeft; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "extendWordRight", function() { return extendWordRight; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "indentSelection", function() { return indentSelection; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "insertNewlineAndIndent", function() { return insertNewlineAndIndent; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "macBaseKeymap", function() { return macBaseKeymap; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "moveCharLeft", function() { return moveCharLeft; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "moveCharRight", function() { return moveCharRight; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "moveLineDown", function() { return moveLineDown; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "moveLineEnd", function() { return moveLineEnd; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "moveLineStart", function() { return moveLineStart; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "moveLineUp", function() { return moveLineUp; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "moveWordLeft", function() { return moveWordLeft; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "moveWordRight", function() { return moveWordRight; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "pcBaseKeymap", function() { return pcBaseKeymap; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "selectAll", function() { return selectAll; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "selectDocEnd", function() { return selectDocEnd; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "selectDocStart", function() { return selectDocStart; });
+/* harmony import */ var _state__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../state */ "./node_modules/@codemirror/next/state/dist/index.es.js");
+
+
+function moveSelection(view, dir, granularity) {
+    let transaction = view.state.t().forEachRange(range => {
+        if (!range.empty && granularity != "lineboundary")
+            return new _state__WEBPACK_IMPORTED_MODULE_0__["SelectionRange"](dir == "left" || dir == "backward" ? range.from : range.to);
+        return new _state__WEBPACK_IMPORTED_MODULE_0__["SelectionRange"](view.movePos(range.head, dir, granularity, "move"));
+    });
+    if (transaction.selection.eq(view.state.selection))
+        return false;
+    if (granularity == "line")
+        transaction.annotate(_state__WEBPACK_IMPORTED_MODULE_0__["Transaction"].preserveGoalColumn, true);
+    view.dispatch(transaction.scrollIntoView());
+    return true;
+}
+/// Move the selection one character to the left (which is backward in
+/// left-to-right text, forward in right-to-left text).
+const moveCharLeft = view => moveSelection(view, "left", "character");
+/// Move the selection one character to the right.
+const moveCharRight = view => moveSelection(view, "right", "character");
+/// Move the selection one word to the left.
+const moveWordLeft = view => moveSelection(view, "left", "word");
+/// Move the selection one word to the right.
+const moveWordRight = view => moveSelection(view, "right", "word");
+/// Move the selection one line up.
+const moveLineUp = view => moveSelection(view, "backward", "line");
+/// Move the selection one line down.
+const moveLineDown = view => moveSelection(view, "forward", "line");
+/// Move the selection to the start of the line.
+const moveLineStart = view => moveSelection(view, "backward", "lineboundary");
+/// Move the selection to the end of the line.
+const moveLineEnd = view => moveSelection(view, "forward", "lineboundary");
+function extendSelection(view, dir, granularity) {
+    let transaction = view.state.t().forEachRange(range => {
+        return new _state__WEBPACK_IMPORTED_MODULE_0__["SelectionRange"](range.anchor, view.movePos(range.head, dir, granularity, "extend"));
+    });
+    if (transaction.selection.eq(view.state.selection))
+        return false;
+    if (granularity == "line")
+        transaction.annotate(_state__WEBPACK_IMPORTED_MODULE_0__["Transaction"].preserveGoalColumn, true);
+    view.dispatch(transaction.scrollIntoView());
+    return true;
+}
+/// Move the selection head one character to the left, while leaving
+/// the anchor in place.
+const extendCharLeft = view => extendSelection(view, "left", "character");
+/// Move the selection head one character to the right.
+const extendCharRight = view => extendSelection(view, "right", "character");
+/// Move the selection head one word to the left.
+const extendWordLeft = view => extendSelection(view, "left", "word");
+/// Move the selection head one word to the right.
+const extendWordRight = view => extendSelection(view, "right", "word");
+/// Move the selection head one line up.
+const extendLineUp = view => extendSelection(view, "backward", "line");
+/// Move the selection head one line down.
+const extendLineDown = view => extendSelection(view, "forward", "line");
+/// Move the selection head to the start of the line.
+const extendLineStart = view => extendSelection(view, "backward", "lineboundary");
+/// Move the selection head to the end of the line.
+const extendLineEnd = view => extendSelection(view, "forward", "lineboundary");
+/// Move the selection to the start of the document.
+const selectDocStart = ({ state, dispatch }) => {
+    dispatch(state.t().setSelection(_state__WEBPACK_IMPORTED_MODULE_0__["EditorSelection"].single(0)).scrollIntoView());
+    return true;
+};
+/// Move the selection to the end of the document.
+const selectDocEnd = ({ state, dispatch }) => {
+    dispatch(state.t().setSelection(_state__WEBPACK_IMPORTED_MODULE_0__["EditorSelection"].single(state.doc.length)).scrollIntoView());
+    return true;
+};
+/// Select the entire document.
+const selectAll = ({ state, dispatch }) => {
+    dispatch(state.t().setSelection(_state__WEBPACK_IMPORTED_MODULE_0__["EditorSelection"].single(0, state.doc.length)));
+    return true;
+};
+function deleteText(view, dir) {
+    let transaction = view.state.t().forEachRange((range, transaction) => {
+        let { from, to } = range;
+        if (from == to) {
+            let target = view.movePos(range.head, dir, "character", "move");
+            from = Math.min(from, target);
+            to = Math.max(to, target);
+        }
+        if (from == to)
+            return range;
+        transaction.replace(from, to, "");
+        return new _state__WEBPACK_IMPORTED_MODULE_0__["SelectionRange"](from);
+    });
+    if (!transaction.docChanged)
+        return false;
+    view.dispatch(transaction.scrollIntoView());
+    return true;
+}
+/// Delete the character before the cursor (which is the one to left
+/// in left-to-right text, but the one to the right in right-to-left
+/// text).
+const deleteCharBackward = view => deleteText(view, "backward");
+/// Delete the character after the cursor.
+const deleteCharForward = view => deleteText(view, "forward");
+// FIXME support indenting by tab, configurable indent units
+function space(n) {
+    let result = "";
+    for (let i = 0; i < n; i++)
+        result += " ";
+    return result;
+}
+function getIndentation(state, pos) {
+    for (let f of state.facet(_state__WEBPACK_IMPORTED_MODULE_0__["EditorState"].indentation)) {
+        let result = f(state, pos);
+        if (result > -1)
+            return result;
+    }
+    return -1;
+}
+/// Replace the selection with a newline and indent the newly created
+/// line(s).
+const insertNewlineAndIndent = ({ state, dispatch }) => {
+    let i = 0, indentation = state.selection.ranges.map(r => {
+        let indent = getIndentation(state, r.from);
+        return indent > -1 ? indent : /^\s*/.exec(state.doc.lineAt(r.from).slice(0, 50))[0].length;
+    });
+    dispatch(state.t().forEachRange(({ from, to }, tr) => {
+        let indent = indentation[i++], line = tr.doc.lineAt(to);
+        while (to < line.end && /s/.test(line.slice(to - line.start, to + 1 - line.start)))
+            to++;
+        tr.replace(from, to, ["", space(indent)]);
+        return new _state__WEBPACK_IMPORTED_MODULE_0__["SelectionRange"](from + indent + 1);
+    }).scrollIntoView());
+    return true;
+};
+/// Auto-indent the selected lines. This uses the [indentation
+/// behavor](#state.EditorState^indentation) as source.
+const indentSelection = ({ state, dispatch }) => {
+    // FIXME this will base all indentation on the same state, which is
+    // wrong (indentation looks at the indent of previous lines, which may
+    // be changed).
+    let lastLine = -1, positions = [];
+    for (let range of state.selection.ranges) {
+        for (let { start, end } = state.doc.lineAt(range.from);;) {
+            if (start != lastLine) {
+                lastLine = start;
+                let indent = getIndentation(state, start), current;
+                if (indent > -1 &&
+                    indent != (current = /^\s*/.exec(state.doc.slice(start, Math.min(end, start + 100)))[0].length))
+                    positions.push({ pos: start, current, indent });
+            }
+            if (end + 1 > range.to)
+                break;
+            ({ start, end } = state.doc.lineAt(end + 1));
+        }
+    }
+    if (positions.length > 0) {
+        let tr = state.t();
+        for (let { pos, current, indent } of positions) {
+            let start = tr.changes.mapPos(pos);
+            tr.replace(start, start + current, space(indent));
+        }
+        dispatch(tr);
+    }
+    return true;
+};
+/// The default keymap for Linux/Windows/non-Mac platforms. Binds the
+/// arrows for cursor motion, shift-arrow for selection extension,
+/// ctrl-arrows for by-word motion, home/end for line start/end,
+/// ctrl-home/end for document start/end, ctrl-a to select all,
+/// backspace/delete for deletion, and enter for newline-and-indent.
+const pcBaseKeymap = {
+    "ArrowLeft": moveCharLeft,
+    "ArrowRight": moveCharRight,
+    "Shift-ArrowLeft": extendCharLeft,
+    "Shift-ArrowRight": extendCharRight,
+    "Mod-ArrowLeft": moveWordLeft,
+    "Mod-ArrowRight": moveWordRight,
+    "Shift-Mod-ArrowLeft": extendWordLeft,
+    "Shift-Mod-ArrowRight": extendWordRight,
+    "ArrowUp": moveLineUp,
+    "ArrowDown": moveLineDown,
+    "Shift-ArrowUp": extendLineUp,
+    "Shift-ArrowDown": extendLineDown,
+    "Home": moveLineStart,
+    "End": moveLineEnd,
+    "Shift-Home": extendLineStart,
+    "Shift-End": extendLineEnd,
+    "Mod-Home": selectDocStart,
+    "Mod-End": selectDocEnd,
+    "Mod-a": selectAll,
+    "Backspace": deleteCharBackward,
+    "Delete": deleteCharForward,
+    "Enter": insertNewlineAndIndent
+};
+/// The default keymap for Mac platforms. Includes the bindings from
+/// the [PC keymap](#commands.pcBaseKeymap) (using Cmd instead of
+/// Ctrl), and adds Mac-specific default bindings.
+const macBaseKeymap = {
+    "Control-b": moveCharLeft,
+    "Control-f": moveCharRight,
+    "Shift-Control-b": extendCharLeft,
+    "Shift-Control-f": extendCharRight,
+    "Control-p": moveLineUp,
+    "Control-n": moveLineDown,
+    "Shift-Control-p": extendLineUp,
+    "Shift-Control-n": extendLineDown,
+    "Control-a": moveLineStart,
+    "Control-e": moveLineEnd,
+    "Shift-Control-a": extendLineStart,
+    "Shift-Control-e": extendLineEnd,
+    "Cmd-ArrowUp": selectDocStart,
+    "Cmd-ArrowDown": selectDocEnd,
+    "Control-d": deleteCharForward,
+    "Control-h": deleteCharBackward
+};
+for (let key in pcBaseKeymap)
+    macBaseKeymap[key] = pcBaseKeymap[key];
+const mac = typeof navigator != "undefined" ? /Mac/.test(navigator.platform)
+    : typeof os != "undefined" ? os.platform() == "darwin" : false;
+/// The default keymap for the current platform.
+const baseKeymap = mac ? macBaseKeymap : pcBaseKeymap;
+
+
+
+
+/***/ }),
+
 /***/ "./node_modules/@codemirror/next/rangeset/dist/index.es.js":
 /*!*****************************************************************!*\
   !*** ./node_modules/@codemirror/next/rangeset/dist/index.es.js ***!
@@ -8465,28 +8724,43 @@ module.exports = g;
 Object.defineProperty(exports, "__esModule", { value: true });
 var view_1 = __webpack_require__(/*! @codemirror/next/view */ "./node_modules/@codemirror/next/view/dist/index.es.js");
 var state_1 = __webpack_require__(/*! @codemirror/next/state */ "./node_modules/@codemirror/next/state/dist/index.es.js");
-var touchStartX = null;
+var commands = __webpack_require__(/*! @codemirror/next/commands */ "./node_modules/@codemirror/next/commands/dist/index.es.js");
+var helloTypeScriptProgram = "function hello(name: string) {\n  console.log(`hello ${name}`)\n}\n";
 var editor = new view_1.EditorView({
     state: state_1.EditorState.create({
-        doc: "hello",
+        doc: helloTypeScriptProgram,
         extensions: [
             view_1.EditorView.domEventHandlers.of({
-                touchstart: function (view, event) {
-                    console.log("touchstart");
-                    console.log(event);
-                    touchStartX = event.changedTouches[0].clientX;
-                    return false;
-                },
-                touchend: function (view, event) {
-                    console.log("touchend");
-                    console.log(event);
-                    return true;
-                },
+                touchstart: onTouchStart,
+                touchend: onTouchEnd
             })
         ]
     })
 });
+// move this to its own class
+var touchStartX = null;
+function onTouchStart(view, event) {
+    touchStartX = event.changedTouches[0].clientX;
+    console.log("touchstart " + touchStartX);
+    return false;
+}
+function onTouchEnd(view, event) {
+    var touchEndX = event.changedTouches[0].clientX;
+    console.log("touchstart " + touchEndX);
+    // swiped right
+    if (touchEndX - touchStartX > 40) {
+        commands.moveWordRight(editor);
+        return false;
+    }
+    // swiped left
+    if (touchStartX - touchEndX > 40) {
+        commands.moveWordLeft(editor);
+        return false;
+    }
+    return true;
+}
 document.body.appendChild(editor.dom);
+editor.focus();
 
 
 /***/ })

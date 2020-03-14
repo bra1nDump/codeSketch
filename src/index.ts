@@ -1,36 +1,49 @@
 import {EditorView} from "@codemirror/next/view"
 import {EditorState} from "@codemirror/next/state"
+import * as commands from "@codemirror/next/commands"
 
-var touchStartX = null;
+const helloTypeScriptProgram = 
+  "function hello(name: string) {\n  console.log(`hello ${name}`)\n}\n"
 
-let editor = new EditorView(
-  {
-    state: EditorState.create(
-      {
-        doc: "hello",
-        extensions: [
-          EditorView.domEventHandlers.of({
-            touchstart(view: EditorView, event: TouchEvent) {
-              console.log("touchstart")
-              console.log(event)
+let editor = new EditorView({
+  state: EditorState.create({
+    doc: helloTypeScriptProgram,
+    extensions: [
+      EditorView.domEventHandlers.of({
+        touchstart: onTouchStart,
+        touchend: onTouchEnd
+      })
+    ]
+  })
+})
 
-              touchStartX = event.changedTouches[0].clientX
+// move this to its own class
+var touchStartX: number = null;
+function onTouchStart(view: EditorView, event: TouchEvent) {
+  touchStartX = event.changedTouches[0].clientX
+  console.log(`touchstart ${touchStartX}`)
 
-              return false
-            },
-            touchend(view: EditorView, event: TouchEvent) {
-              console.log("touchend")
-              console.log(event)
+  return false
+}
 
-              
-
-              return true
-            },
-          })
-        ]
-      }
-    )
+function onTouchEnd(view: EditorView, event: TouchEvent) {
+  const touchEndX = event.changedTouches[0].clientX
+  console.log(`touchstart ${touchEndX}`)
+  
+  // swiped right
+  if (touchEndX - touchStartX > 40) {
+    commands.moveWordRight(editor)
+    return false
   }
-)
+
+  // swiped left
+  if (touchStartX - touchEndX > 40) {
+    commands.moveWordLeft(editor)
+    return false
+  }
+
+  return true
+}
 
 document.body.appendChild(editor.dom)
+editor.focus()

@@ -8,6 +8,7 @@
             "type": "chrome",
             "request": "launch",
             "name": "Launch Chrome",
+            "preLaunchTask": "build",
             "url": "${workspaceFolder}/dist/index.html",
             "webRoot": "${workspaceFolder}/dist",
             "sourceMaps": true,
