@@ -1,49 +1,81 @@
 import {EditorView} from "@codemirror/next/view"
 import {EditorState} from "@codemirror/next/state"
 import * as commands from "@codemirror/next/commands"
+import {javascript} from "@codemirror/next/lang-javascript"
+import {lineNumbers} from "@codemirror/next/gutter"
+import {defaultHighlighter} from "@codemirror/next/highlight"
 
 const helloTypeScriptProgram = 
   "function hello(name: string) {\n  console.log(`hello ${name}`)\n}\n"
 
-let editor = new EditorView({
-  state: EditorState.create({
-    doc: helloTypeScriptProgram,
-    extensions: [
-      EditorView.domEventHandlers.of({
-        touchstart: onTouchStart,
-        touchend: onTouchEnd
-      })
-    ]
-  })
+let state = EditorState.create({
+  doc: helloTypeScriptProgram,
+  extensions: [
+
+    // create a static extension
+    // great example of how facets bring value.
+    // We could have created multiple consumers of
+    // domEventHandlers facet consumers: extensions
+    // extensions do the work, but the work 
+    // is driven by facets
+    EditorView.domEventHandlers.of({
+      touchstart: onTouchStart,
+      touchend: onTouchEnd
+    }),
+    
+    lineNumbers(),
+    defaultHighlighter,
+
+    javascript()
+  ]
 })
 
+let editor = new EditorView({state})
+
 // move this to its own class
-var touchStartX: number = null;
+var clientXStart: number = null;
+var clientYStart: number = null;
 function onTouchStart(view: EditorView, event: TouchEvent) {
-  touchStartX = event.changedTouches[0].clientX
-  console.log(`touchstart ${touchStartX}`)
+  let {clientX, clientY} = event.changedTouches[0]
+  clientXStart = clientX
+  clientYStart = clientY
+  return false
+}
+
+// TODO: Add long gestures
+function onTouchEnd(view: EditorView, event: TouchEvent) {
+  let {clientX, clientY} = event.changedTouches[0]
+  const threshold = 40
+  
+  if (clientX - clientXStart > threshold) {
+    commands.moveWordRight(editor)
+    return true
+  }
+  if (clientXStart - clientX > threshold) {
+    commands.moveWordLeft(editor)
+    return true
+  }
+  if (clientY - clientYStart > threshold) {
+    commands.moveLineDown(editor)
+    return true
+  }
+  if (clientYStart - clientY > threshold) {
+    commands.moveLineUp(editor)
+    return true
+  }
 
   return false
 }
 
-function onTouchEnd(view: EditorView, event: TouchEvent) {
-  const touchEndX = event.changedTouches[0].clientX
-  console.log(`touchstart ${touchEndX}`)
-  
-  // swiped right
-  if (touchEndX - touchStartX > 40) {
-    commands.moveWordRight(editor)
-    return false
-  }
+//editor.dom.style.width = "100vw"
+//editor.dom.style.height = "100vh"
 
-  // swiped left
-  if (touchStartX - touchEndX > 40) {
-    commands.moveWordLeft(editor)
-    return false
-  }
+var style = editor.dom.style
+style.width = "100vw"
+style.height = "100vh"
 
-  return true
-}
+document.body.style.margin = "0px"
 
 document.body.appendChild(editor.dom)
+
 editor.focus()
