@@ -4,6 +4,7 @@ import * as commands from "@codemirror/next/commands"
 import {javascript} from "@codemirror/next/lang-javascript"
 import {lineNumbers} from "@codemirror/next/gutter"
 import {defaultHighlighter} from "@codemirror/next/highlight"
+import {keymap} from "@codemirror/next/keymap"
 
 const helloTypeScriptProgram = 
   "function hello(name: string) {\n  console.log(`hello ${name}`)\n}\n"
@@ -22,6 +23,8 @@ let state = EditorState.create({
       touchstart: onTouchStart,
       touchend: onTouchEnd
     }),
+
+    keymap(commands.baseKeymap),
     
     lineNumbers(),
     defaultHighlighter,
@@ -66,9 +69,6 @@ function onTouchEnd(view: EditorView, event: TouchEvent) {
 
   return false
 }
-
-//editor.dom.style.width = "100vw"
-//editor.dom.style.height = "100vh"
 
 var style = editor.dom.style
 style.width = "100vw"
