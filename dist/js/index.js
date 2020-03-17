@@ -1065,6 +1065,117 @@ const defaultHighlighter = highlighter({
 
 /***/ }),
 
+/***/ "./node_modules/@codemirror/next/keymap/dist/index.es.js":
+/*!***************************************************************!*\
+  !*** ./node_modules/@codemirror/next/keymap/dist/index.es.js ***!
+  \***************************************************************/
+/*! exports provided: NormalizedKeymap, keymap */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "NormalizedKeymap", function() { return NormalizedKeymap; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "keymap", function() { return keymap; });
+/* harmony import */ var w3c_keyname__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! w3c-keyname */ "./node_modules/w3c-keyname/index.es.js");
+/* harmony import */ var _view__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../../view */ "./node_modules/@codemirror/next/view/dist/index.es.js");
+
+
+
+const mac = typeof navigator != "undefined" ? /Mac/.test(navigator.platform) : false;
+function normalizeKeyName(name) {
+    const parts = name.split(/-(?!$)/);
+    let result = parts[parts.length - 1];
+    if (result == "Space")
+        result = " ";
+    let alt, ctrl, shift, meta;
+    for (let i = 0; i < parts.length - 1; ++i) {
+        const mod = parts[i];
+        if (/^(cmd|meta|m)$/i.test(mod))
+            meta = true;
+        else if (/^a(lt)?$/i.test(mod))
+            alt = true;
+        else if (/^(c|ctrl|control)$/i.test(mod))
+            ctrl = true;
+        else if (/^s(hift)?$/i.test(mod))
+            shift = true;
+        else if (/^mod$/i.test(mod)) {
+            if (mac)
+                meta = true;
+            else
+                ctrl = true;
+        }
+        else
+            throw new Error("Unrecognized modifier name: " + mod);
+    }
+    if (alt)
+        result = "Alt-" + result;
+    if (ctrl)
+        result = "Ctrl-" + result;
+    if (meta)
+        result = "Meta-" + result;
+    if (shift)
+        result = "Shift-" + result;
+    return result;
+}
+function modifiers(name, event, shift) {
+    if (event.altKey)
+        name = "Alt-" + name;
+    if (event.ctrlKey)
+        name = "Ctrl-" + name;
+    if (event.metaKey)
+        name = "Meta-" + name;
+    if (shift !== false && event.shiftKey)
+        name = "Shift-" + name;
+    return name;
+}
+/// Create a view extension that registers a keymap.
+///
+/// You can add multiple keymap behaviors to an editor. Their
+/// priorities determine their precedence (the ones specified early or
+/// with high priority get to dispatch first). When a handler has
+/// returned `true` for a given key, no further handlers are called.
+const keymap = (map) => {
+    let set = new NormalizedKeymap(map);
+    return _view__WEBPACK_IMPORTED_MODULE_1__["EditorView"].domEventHandlers.of({
+        keydown(view, event) {
+            let handler = set.get(event);
+            return handler ? handler(view) : false;
+        }
+    });
+};
+/// Stores a set of keybindings in normalized form, and helps looking
+/// up the binding for a keyboard event. Only needed when binding keys
+/// in some custom way.
+class NormalizedKeymap {
+    /// Create a normalized map.
+    constructor(map) {
+        this.map = Object.create(null);
+        for (const prop in map)
+            this.map[normalizeKeyName(prop)] = map[prop];
+    }
+    /// Look up the binding for the given keyboard event, or `undefined`
+    /// if none is found.
+    get(event) {
+        const name = Object(w3c_keyname__WEBPACK_IMPORTED_MODULE_0__["keyName"])(event), isChar = name.length == 1 && name != " ";
+        const direct = this.map[modifiers(name, event, !isChar)];
+        if (direct)
+            return direct;
+        let baseName;
+        if (isChar && (event.shiftKey || event.altKey || event.metaKey) &&
+            (baseName = w3c_keyname__WEBPACK_IMPORTED_MODULE_0__["base"][event.keyCode]) && baseName != name) {
+            const fromCode = this.map[modifiers(baseName, event, true)];
+            if (fromCode)
+                return fromCode;
+        }
+        return undefined;
+    }
+}
+
+
+
+
+/***/ }),
+
 /***/ "./node_modules/@codemirror/next/lang-javascript/dist/index.es.js":
 /*!************************************************************************!*\
   !*** ./node_modules/@codemirror/next/lang-javascript/dist/index.es.js ***!
@@ -11626,6 +11737,157 @@ function renderStyle(selector, spec, output) {
 
 /***/ }),
 
+/***/ "./node_modules/w3c-keyname/index.es.js":
+/*!**********************************************!*\
+  !*** ./node_modules/w3c-keyname/index.es.js ***!
+  \**********************************************/
+/*! exports provided: default, base, keyName, shift */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "base", function() { return base_1; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "keyName", function() { return keyName; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "shift", function() { return shift_1; });
+var base = {
+  8: "Backspace",
+  9: "Tab",
+  10: "Enter",
+  12: "NumLock",
+  13: "Enter",
+  16: "Shift",
+  17: "Control",
+  18: "Alt",
+  20: "CapsLock",
+  27: "Escape",
+  32: " ",
+  33: "PageUp",
+  34: "PageDown",
+  35: "End",
+  36: "Home",
+  37: "ArrowLeft",
+  38: "ArrowUp",
+  39: "ArrowRight",
+  40: "ArrowDown",
+  44: "PrintScreen",
+  45: "Insert",
+  46: "Delete",
+  59: ";",
+  61: "=",
+  91: "Meta",
+  92: "Meta",
+  106: "*",
+  107: "+",
+  108: ",",
+  109: "-",
+  110: ".",
+  111: "/",
+  144: "NumLock",
+  145: "ScrollLock",
+  160: "Shift",
+  161: "Shift",
+  162: "Control",
+  163: "Control",
+  164: "Alt",
+  165: "Alt",
+  173: "-",
+  186: ";",
+  187: "=",
+  188: ",",
+  189: "-",
+  190: ".",
+  191: "/",
+  192: "`",
+  219: "[",
+  220: "\\",
+  221: "]",
+  222: "'",
+  229: "q"
+};
+var base_1 = base;
+
+var shift = {
+  48: ")",
+  49: "!",
+  50: "@",
+  51: "#",
+  52: "$",
+  53: "%",
+  54: "^",
+  55: "&",
+  56: "*",
+  57: "(",
+  59: ";",
+  61: "+",
+  173: "_",
+  186: ":",
+  187: "+",
+  188: "<",
+  189: "_",
+  190: ">",
+  191: "?",
+  192: "~",
+  219: "{",
+  220: "|",
+  221: "}",
+  222: "\"",
+  229: "Q"
+};
+var shift_1 = shift;
+
+var chrome = typeof navigator != "undefined" && /Chrome\/(\d+)/.exec(navigator.userAgent);
+var safari = typeof navigator != "undefined" && /Apple Computer/.test(navigator.vendor);
+var gecko = typeof navigator != "undefined" && /Gecko\/\d+/.test(navigator.userAgent);
+var mac = typeof navigator != "undefined" && /Mac/.test(navigator.platform);
+var ie = typeof navigator != "undefined" && /MSIE \d|Trident\/(?:[7-9]|\d{2,})\..*rv:(\d+)/.exec(navigator.userAgent);
+var brokenModifierNames = chrome && (mac || +chrome[1] < 57) || gecko && mac;
+
+// Fill in the digit keys
+for (var i = 0; i < 10; i++) base[48 + i] = base[96 + i] = String(i);
+
+// The function keys
+for (var i = 1; i <= 24; i++) base[i + 111] = "F" + i;
+
+// And the alphabetic keys
+for (var i = 65; i <= 90; i++) {
+  base[i] = String.fromCharCode(i + 32);
+  shift[i] = String.fromCharCode(i);
+}
+
+// For each code that doesn't have a shift-equivalent, copy the base name
+for (var code in base) if (!shift.hasOwnProperty(code)) shift[code] = base[code];
+
+var keyName = function(event) {
+  // Don't trust event.key in Chrome when there are modifiers until
+  // they fix https://bugs.chromium.org/p/chromium/issues/detail?id=633838
+  var ignoreKey = brokenModifierNames && (event.ctrlKey || event.altKey || event.metaKey) ||
+    (safari || ie) && event.shiftKey && event.key && event.key.length == 1;
+  var name = (!ignoreKey && event.key) ||
+    (event.shiftKey ? shift : base)[event.keyCode] ||
+    event.key || "Unidentified";
+  // Edge sometimes produces wrong names (Issue #3)
+  if (name == "Esc") name = "Escape";
+  if (name == "Del") name = "Delete";
+  // https://developer.microsoft.com/en-us/microsoft-edge/platform/issues/8860571/
+  if (name == "Left") name = "ArrowLeft";
+  if (name == "Up") name = "ArrowUp";
+  if (name == "Right") name = "ArrowRight";
+  if (name == "Down") name = "ArrowDown";
+  return name
+};
+
+var w3cKeyname = {
+	base: base_1,
+	shift: shift_1,
+	keyName: keyName
+};
+
+/* harmony default export */ __webpack_exports__["default"] = (w3cKeyname);
+
+
+
+/***/ }),
+
 /***/ "./node_modules/webpack/buildin/global.js":
 /*!***********************************!*\
   !*** (webpack)/buildin/global.js ***!
@@ -11673,6 +11935,7 @@ var commands = __webpack_require__(/*! @codemirror/next/commands */ "./node_modu
 var lang_javascript_1 = __webpack_require__(/*! @codemirror/next/lang-javascript */ "./node_modules/@codemirror/next/lang-javascript/dist/index.es.js");
 var gutter_1 = __webpack_require__(/*! @codemirror/next/gutter */ "./node_modules/@codemirror/next/gutter/dist/index.es.js");
 var highlight_1 = __webpack_require__(/*! @codemirror/next/highlight */ "./node_modules/@codemirror/next/highlight/dist/index.es.js");
+var keymap_1 = __webpack_require__(/*! @codemirror/next/keymap */ "./node_modules/@codemirror/next/keymap/dist/index.es.js");
 var helloTypeScriptProgram = "function hello(name: string) {\n  console.log(`hello ${name}`)\n}\n";
 var state = state_1.EditorState.create({
     doc: helloTypeScriptProgram,
@@ -11687,6 +11950,7 @@ var state = state_1.EditorState.create({
             touchstart: onTouchStart,
             touchend: onTouchEnd
         }),
+        keymap_1.keymap(commands.baseKeymap),
         gutter_1.lineNumbers(),
         highlight_1.defaultHighlighter,
         lang_javascript_1.javascript()
@@ -11724,8 +11988,6 @@ function onTouchEnd(view, event) {
     }
     return false;
 }
-//editor.dom.style.width = "100vw"
-//editor.dom.style.height = "100vh"
 var style = editor.dom.style;
 style.width = "100vw";
 style.height = "100vh";
