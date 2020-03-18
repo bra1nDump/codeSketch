@@ -11990,7 +11990,7 @@ function onTouchEnd(view, event) {
 }
 var style = editor.dom.style;
 style.width = "100vw";
-style.height = "100vh";
+style.height = "50vh";
 document.body.style.margin = "0px";
 document.body.appendChild(editor.dom);
 editor.focus();

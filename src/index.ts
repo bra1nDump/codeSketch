@@ -72,7 +72,7 @@ function onTouchEnd(view: EditorView, event: TouchEvent) {
 
 var style = editor.dom.style
 style.width = "100vw"
-style.height = "100vh"
+style.height = "50vh"
 
 document.body.style.margin = "0px"
 
