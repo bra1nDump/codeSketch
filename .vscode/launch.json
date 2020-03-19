@@ -8,13 +8,11 @@
             "type": "chrome",
             "request": "launch",
             "name": "Launch Chrome",
-            "preLaunchTask": "build",
-            "url": "${workspaceFolder}/dist/index.html",
-            "webRoot": "${workspaceFolder}/dist",
+            "url": "http://localhost:8080",
             "sourceMaps": true,
             "sourceMapPathOverrides": {
-                "webpack:///./src/*": "${workspaceFolder}/src/*",
-                "webpack:///../node_modules/*": "${workspaceFolder}/node_modules/*",
+                "webpack:///./src/*": "${workspaceFolder}/client/src/*",
+                "webpack:///../node_modules/*": "${workspaceFolder}/client/node_modules/*",
             },
         }
     ]

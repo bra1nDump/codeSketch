@@ -10,7 +10,8 @@
   "license": "ISC",
   "dependencies": {
     "@codemirror/next": "^0.4.0",
-    "@types/hammerjs": "^2.0.36"
+    "@types/bent": "^7.0.1",
+    "bent": "^7.1.1"
   },
   "devDependencies": {
     "source-map-loader": "^0.2.4",

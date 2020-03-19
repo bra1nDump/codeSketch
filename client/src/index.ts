@@ -1,13 +1,13 @@
-import {EditorView} from "@codemirror/next/view"
-import {EditorState} from "@codemirror/next/state"
-import * as commands from "@codemirror/next/commands"
-import {javascript} from "@codemirror/next/lang-javascript"
-import {lineNumbers} from "@codemirror/next/gutter"
-import {defaultHighlighter} from "@codemirror/next/highlight"
-import {keymap} from "@codemirror/next/keymap"
+import {EditorView} from '@codemirror/next/view'
+import {EditorState} from '@codemirror/next/state'
+import * as commands from '@codemirror/next/commands'
+import {javascript} from '@codemirror/next/lang-javascript'
+import {lineNumbers} from '@codemirror/next/gutter'
+import {defaultHighlighter} from '@codemirror/next/highlight'
+import {keymap} from '@codemirror/next/keymap'
 
 const helloTypeScriptProgram = 
-  "function hello(name: string) {\n  console.log(`hello ${name}`)\n}\n"
+  'function hello(name: string) {\n  console.log(`hello ${name}`)\n}\n'
 
 let state = EditorState.create({
   doc: helloTypeScriptProgram,
@@ -26,7 +26,6 @@ let state = EditorState.create({
 
     keymap(commands.baseKeymap),
     
-    lineNumbers(),
     defaultHighlighter,
 
     javascript()
@@ -47,6 +46,10 @@ function onTouchStart(view: EditorView, event: TouchEvent) {
 
 // TODO: Add long gestures
 function onTouchEnd(view: EditorView, event: TouchEvent) {
+  if (event.changedTouches.length > 1) {
+    return false
+  }
+
   let {clientX, clientY} = event.changedTouches[0]
   const threshold = 40
   
@@ -70,12 +73,36 @@ function onTouchEnd(view: EditorView, event: TouchEvent) {
   return false
 }
 
+// MARK: css
 var style = editor.dom.style
-style.width = "100vw"
-style.height = "50vh"
+let editorDomId = "editor.dom"
+editor.dom.id = editorDomId
+style.width = '100vw'
+style.height = `${window.innerHeight}px`
 
-document.body.style.margin = "0px"
+let body = document.body
+// TODO: figure out a way how to add overscroll-behavior-y css property using style
+body.setAttribute('style', `margin:0px; overscroll-behavior-y:contain;`)
 
+window.addEventListener('resize', () => {
+  // TODO: refactor
+  document.getElementById(editorDomId).style.height = `${window.innerHeight}px`
+})
+
+// MARK: add editor to dom
 document.body.appendChild(editor.dom)
-
 editor.focus()
+
+import * as bent from 'bent'
+const post = bent('http://localhost:8080/api', 'POST', 'json', 200)
+
+// add even listeners to buttons
+document.getElementById('run')
+.addEventListener('click', async () => {
+  let response = await 
+    post('/run', { 
+      code: editor.state.doc.toString() 
+    })
+  console.log(response)
+})
+
