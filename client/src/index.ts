@@ -101,7 +101,7 @@ document.getElementById('run')
 .addEventListener('click', async () => {
   let response = await 
     post('/run', { 
-      code: editor.state.doc.toString() 
+      source: editor.state.doc.toString() 
     })
   console.log(response)
 })
