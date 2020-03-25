@@ -1,6 +1,8 @@
 {
     "compilerOptions": {
-        "sourceMap": true
+        "sourceMap": true,
+        "outDir": "build",
+        "lib": ["ES5"]
     },
     "include": [
         "src/**/*.ts"

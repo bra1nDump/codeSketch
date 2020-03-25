@@ -1,19 +1,49 @@
 import {execute, completionsAt} from '../src/utils'
 import {describe, it} from 'mocha'
-import {expect} from 'chai'
+import {assert} from 'chai'
+
+// silence logging
+console.log = () => {}
 
 describe('execute', () => {
     it('should execute a hello world program',
-        async () => expect(await execute("console.log('hello world')") === 'hello world'))
+        async () => 
+            assert(
+                await execute("console.log('hello world')") 
+                === 'hello world\n')
+    )
 
-    it('language service picks up changes to the program correctly',
-        async () => expect(await execute("console.log('hello petux')") === 'hello petux'))
+    it('should execute a hello petux program',
+        async () => 
+            assert(
+                await execute("console.log('hello petux')") 
+                === 'hello petux\n')
+    )
 })
 
 describe('completionsAt', () => {
-    it('checks that log appears as one of the completions ',
-        () => expect(completionsAt('console.', 9).some(({name}) => name === 'log')))
+    it('autocomplete on object fields works',
+        () => {
+            let source = `
+                export {}
+                let obj = {
+                    xyz: 10,
+                    lmn: 13
+                };
+                obj.lm`
+            assert(completionsAt(source, source.length).some(({name}) => name === 'lmn'))
+        }
+    )
 
-    it('checks that locally declared constant appears in the completions',
-        () => expect(completionsAt('const foo = 0; ', 15).some(({name}) => name === 'foo')))
+    it(`completions of 'console.' should include 'log' method`, () => {
+        let source = 'console.'
+        let completions = completionsAt(source, source.length)
+        assert(completions.some(({name}) => name === 'log'))
+    })
+
+    it(`completions of "const lol = 'lol'" should include 'lol'`, () => {
+        let source = `const lol = 'lol'`
+        let completions = completionsAt(source, source.length)
+        assert(completions.some(({name}) => name === 'lol'))
+    })
 })

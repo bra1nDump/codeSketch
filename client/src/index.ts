@@ -5,9 +5,13 @@ import {javascript} from '@codemirror/next/lang-javascript'
 import {lineNumbers} from '@codemirror/next/gutter'
 import {defaultHighlighter} from '@codemirror/next/highlight'
 import {keymap} from '@codemirror/next/keymap'
+import {autocomplete, AutocompleteData, CompletionResult, Completion} from '@codemirror/next/autocomplete'
 
 const helloTypeScriptProgram = 
   'function hello(name: string) {\n  console.log(`hello ${name}`)\n}\n'
+
+import * as bent from 'bent'
+const post = bent('http://localhost:8080/api', 'POST', 'json', 200)
 
 let state = EditorState.create({
   doc: helloTypeScriptProgram,
@@ -19,6 +23,14 @@ let state = EditorState.create({
     // domEventHandlers facet consumers: extensions
     // extensions do the work, but the work 
     // is driven by facets
+
+    // actually facets seem to be doing the logic of how
+    // to merge various values. For example if multiple
+    // extensions were to be created using the same facet
+    // it would be in charge of deciding how to combine 
+    // those 'settings'. For example it can just override the
+    // old touchstart events, but keep both touchend handlers from 
+    // different extensions ... wttfff
     EditorView.domEventHandlers.of({
       touchstart: onTouchStart,
       touchend: onTouchEnd
@@ -28,7 +40,36 @@ let state = EditorState.create({
     
     defaultHighlighter,
 
-    javascript()
+    javascript(),
+    autocomplete({
+      async completeAt(state: EditorState, pos: number) {
+        let sampleCompletion: Completion = {
+          label: 'fool',
+          start: pos,
+          end: pos
+        }
+
+        let body = {
+          source: state.doc.toString(),
+          position: state.selection.primary.head
+        }
+        let response: { completions: [{ name: string }] } = 
+          await post('/completions', body) as any
+        console.log(response.completions)
+
+        return {
+          items: (response.completions
+            .map(({name}) => 
+              ({
+                label: name,
+                start: pos,
+                end: pos
+              })
+            )
+          )
+        }
+      }
+    })
   ]
 })
 
@@ -93,16 +134,15 @@ window.addEventListener('resize', () => {
 document.body.appendChild(editor.dom)
 editor.focus()
 
-import * as bent from 'bent'
-const post = bent('http://localhost:8080/api', 'POST', 'json', 200)
-
 // add even listeners to buttons
 document.getElementById('run')
 .addEventListener('click', async () => {
-  let response = await 
+  let response: any = await 
     post('/run', { 
       source: editor.state.doc.toString() 
     })
   console.log(response)
+
+  document.getElementById('run-stdout').innerText = response.stdout
 })
 
