@@ -11,8 +11,8 @@
             "url": "http://localhost:8080",
             "sourceMaps": true,
             "sourceMapPathOverrides": {
-                "webpack:///./src/*": "${workspaceFolder}/client/src/*",
-                "webpack:///../node_modules/*": "${workspaceFolder}/client/node_modules/*",
+                "webpack:///./src/*": "${workspaceFolder}/src/*",
+                "webpack:///../node_modules/*": "${workspaceFolder}/node_modules/*",
             },
         }
     ]

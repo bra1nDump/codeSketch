@@ -9,7 +9,7 @@ import {autocomplete} from '@codemirror/next/autocomplete'
 import {completionsAt, execute} from './utils'
 
 const helloTypeScriptProgram = 
-  "function hello(name: string) {\n  console.log(`hello ${name}`)\n}\nhello('kirill')\n"
+  "function hello(name: string) : string {\n  return `hello ${name}`\n}\n"
 
 let state = EditorState.create({
   doc: helloTypeScriptProgram,
@@ -26,31 +26,43 @@ let state = EditorState.create({
     javascript(),
     autocomplete({
       async completeAt(state: EditorState, pos: number) {
-        // TODO: fix this supa shitty doc walk
-        let doc = state.doc.toString()
-        if (
-          // if not a method
-          doc[pos - 1] === '.'
-          || doc[editor.movePos(pos, "left", "word") - 1] === '.'
-          // one word on the current line 
-          || state.doc.lineAt(pos).content.toString().trimLeft().indexOf(' ') > -1
-          // empty line
-          || state.doc.lineAt(pos).content.toString().trimLeft() === ''
-          === false
-        ) {
-            return undefined;
-        }
+        let line = state.doc.lineAt(pos)
+        let linePos = pos - line.start
+        let uptoCursor = line.slice(0, linePos + 1)
+
+        // word starts after last separator
+        let start = uptoCursor.lastIndexOf('.')
+        if (start === -1) start = uptoCursor.lastIndexOf(' ')
+        if (start === -1) start = uptoCursor.lastIndexOf('{')
+        if (start === -1) start = uptoCursor.lastIndexOf('(')
+        
+        // adjust start to be first after the separator
+        if (start !== -1) start += 1
+
+        // word starts after leading whitespaces
+        if (start === -1 && uptoCursor.trimLeft().indexOf(' ') === -1) 
+          start = uptoCursor.length - uptoCursor.trimLeft().length
+
+        // no valid token was started - return
+        if (start === -1) return { items: [] }
+        
+        // if break detected - return []
+        if (uptoCursor.lastIndexOf(' ') > start)
+          return { items: [] }
 
         let tsSource = state.doc.toString()
-        let cursorPosition = state.selection.primary.head
-        let completions = completionsAt(tsSource, cursorPosition)
+        let completions = completionsAt(tsSource, pos)
+
+        let wordSlice = uptoCursor.substring(start)
 
         return {
-          items: (completions
-            .map(({name}) => 
+          items: (
+            completions.map(({name}) => name)
+            .filter((name) => name.startsWith(wordSlice))
+            .map((name) => 
               ({
                 label: name,
-                start: pos,
+                start: line.start + start,
                 end: pos
               })
             )
@@ -107,15 +119,18 @@ var style = editor.dom.style
 let editorDomId = "editor.dom"
 editor.dom.id = editorDomId
 style.width = '100vw'
-style.height = `${window.innerHeight}px`
+style.height = `${window.innerHeight * 0.9}px`
 
 let body = document.body
 // TODO: figure out a way how to add overscroll-behavior-y css property using style
 body.setAttribute('style', `margin:0px; overscroll-behavior-y:contain;`)
 
+document.getElementById('controls').style.height = `${window.innerHeight * 0.1}px`
+
 window.addEventListener('resize', () => {
   // TODO: refactor
-  document.getElementById(editorDomId).style.height = `${window.innerHeight}px`
+  document.getElementById(editorDomId).style.height = `${window.innerHeight * 0.9}px`
+  document.getElementById('controls').style.height = `${window.innerHeight * 0.1}px`
 })
 
 // MARK: add editor to dom
